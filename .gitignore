@@ -1,3 +1,7 @@
 /build/
 *.swp
 /dist/
+/hss-a2-server-war/build/
+/hss-a2-server-war/dist/
+/hss-a2-server-ejb/build/
+/hss-a2-server-ejb/dist/
