@@ -8,7 +8,14 @@ package com.kyleruss.hssa2.server.web.app;
 
 import java.util.Properties;
 import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.Message.RecipientType;
+import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 public class MailController 
 {
@@ -23,15 +30,21 @@ public class MailController
     private void initProperties()
     {
         smtpProperties   =   new Properties();
-        smtpProperties.put("mail.smtp.auth", "true");
         smtpProperties.put("mail.smtp.starttls.enable", "true");
+        smtpProperties.put("mail.smtp.auth", "true");
         smtpProperties.put("mail.smtp.host", Config.SMTP_HOST);
         smtpProperties.put("mail.smtp.port", Config.SMTP_PORT);
     }
     
-    public void sendMail(String recvEmail, String content)
+    public void sendMail(String recvEmail, String content, String subject) throws MessagingException
     {
-        
+        Session session     =   Session.getInstance(smtpProperties, new PassAuthenticator());
+        Message msg         =   new MimeMessage(session);
+        msg.setFrom(new InternetAddress(Config.SMTP_ACC));
+        msg.setRecipient(RecipientType.TO, new InternetAddress(recvEmail));
+        msg.setSubject(subject);
+        msg.setText(content);
+        Transport.send(msg);
     }
     
     public static MailController getInstance()
