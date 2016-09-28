@@ -7,13 +7,18 @@
 package com.kyleruss.hssa2.server.web.app;
 
 import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
 
 public class MailController 
 {
     private static MailController instance;
     private Properties smtpProperties;
     
-    private MailController() {}
+    private MailController() 
+    {
+        initProperties();
+    }
     
     private void initProperties()
     {
@@ -33,5 +38,14 @@ public class MailController
     {
         if(instance == null) instance = new MailController();
         return instance;
+    }
+    
+    private class PassAuthenticator extends Authenticator
+    {
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication()
+        {
+            return new PasswordAuthentication(Config.SMTP_ACC, Config.SMTP_ACC_PASS);
+        }
     }
 }
