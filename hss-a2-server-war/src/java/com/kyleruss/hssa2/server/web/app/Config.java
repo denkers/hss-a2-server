@@ -10,9 +10,9 @@ public class Config
 {
     private Config() {}
     
-    public static final String SMTP_ACC         =   "example@gmail.com";
+    public static final String SMTP_ACC         =   "kjrsmtp@gmail.com";
     
-    public static final String SMTP_ACC_PASS    =   "examplepass";
+    public static final String SMTP_ACC_PASS    =   "Qktrq4kXkqwe";
     
     public static final String SMTP_HOST        =   "smtp.gmail.com";
     
