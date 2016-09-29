@@ -13,4 +13,9 @@ public class Config
     public static final String SMTP_ACC         =   "example@gmail.com";
     
     public static final String SMTP_ACC_PASS    =   "examplepass";
+    
+    public static final String SMTP_HOST        =   "smtp.gmail.com";
+    
+    public static final String SMTP_PORT        =   "587";
+    
 }
