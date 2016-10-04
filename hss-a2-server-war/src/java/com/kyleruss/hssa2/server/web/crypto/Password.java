@@ -10,19 +10,14 @@ public class Password
 {
     private String password;
     
-    public Password()
+    public Password(int length)
     {
-        
+        password    =   CryptoUtils.generateRandomString(length);
     }
     
     public Password(String password)
     {
         this.password   =   password;
-    }
-    
-    private void generateRandomPassword()
-    {
-        
     }
     
     public String getPassword()
@@ -38,5 +33,10 @@ public class Password
     public byte[] getPasswordBytes()
     {
         return password.getBytes();
+    }
+    
+    public int getPasswordLength()
+    {
+        return password.length();
     }
 }
