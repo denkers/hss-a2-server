@@ -35,6 +35,11 @@ public class Password
         return password.getBytes();
     }
     
+    public char[] getPasswordCharacters()
+    {
+        return password.toCharArray();
+    }
+    
     public int getPasswordLength()
     {
         return password.length();
