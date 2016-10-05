@@ -6,42 +6,33 @@
 
 package com.kyleruss.hssa2.server.web.crypto;
 
-public class Password 
+public class Password extends SafeStructure
 {
-    private String password;
     
     public Password(int length)
     {
-        password    =   CryptoUtils.generateRandomString(length, CryptoUtils.ALPHA_NUMERIC);
+        super(length);
+        data    =   CryptoUtils.generateRandomString(length, CryptoUtils.ALPHA_NUMERIC).getBytes();
     }
     
     public Password(String password)
     {
-        this.password   =   password;
+        super(password.length());
+        data    =   password.getBytes();
     }
     
     public String getPassword()
     {
-        return password;
+        return new String(data);
     }
     
     public void setPassword(String password)
     {
-        this.password   =   password;
-    }
-    
-    public byte[] getPasswordBytes()
-    {
-        return password.getBytes();
+        data   =   password.getBytes();
     }
     
     public char[] getPasswordCharacters()
     {
-        return password.toCharArray();
-    }
-    
-    public int getPasswordLength()
-    {
-        return password.length();
+        return new String(data).toCharArray();
     }
 }

@@ -15,7 +15,7 @@ public abstract class SafeStructure implements Serializable
     
     public SafeStructure(int length)
     {
-        generateRandomData(length);
+        data    =   new byte[length];
     }
     
     protected void generateRandomData(int length)
