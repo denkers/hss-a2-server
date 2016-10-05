@@ -12,7 +12,7 @@ public class Password
     
     public Password(int length)
     {
-        password    =   CryptoUtils.generateRandomString(length);
+        password    =   CryptoUtils.generateRandomString(length, CryptoUtils.ALPHA_NUMERIC);
     }
     
     public Password(String password)

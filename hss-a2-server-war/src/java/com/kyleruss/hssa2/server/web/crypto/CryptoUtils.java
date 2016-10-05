@@ -10,7 +10,7 @@ import java.security.SecureRandom;
 
 public class CryptoUtils 
 {
-    private static SecureRandom rGen;
+    private static final SecureRandom rGen;
     public static final String ALPHA_NUMERIC    =   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     
     static
@@ -35,5 +35,4 @@ public class CryptoUtils
         
         return builder.toString();
     }
-    
 }
