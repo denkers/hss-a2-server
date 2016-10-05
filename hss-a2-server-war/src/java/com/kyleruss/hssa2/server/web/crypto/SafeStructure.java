@@ -15,11 +15,17 @@ public abstract class SafeStructure implements Serializable
     
     public SafeStructure(int length)
     {
-        
+        generateRandomData(length);
     }
     
-    protected void generateRandomData()
+    protected void generateRandomData(int length)
     {
+        data    =   CryptoUtils.generateRandomBytes(length);
+    }
+    
+    public int getDataSize()
+    {
+        return data.length;
     }
     
     public byte[] getData()

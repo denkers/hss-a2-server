@@ -35,4 +35,11 @@ public class CryptoUtils
         
         return builder.toString();
     }
+    
+    public static byte[] generateRandomBytes(int length)
+    {
+        byte[] bytes    =   new byte[length];
+        rGen.nextBytes(bytes);
+        return bytes;
+    }
 }
