@@ -36,15 +36,22 @@ public class MailController
         smtpProperties.put("mail.smtp.port", Config.SMTP_PORT);
     }
     
-    public void sendMail(String recvEmail, String content, String subject) throws MessagingException
+    public void sendMail(String recvEmail, String content, String subject, String contentType) throws MessagingException
     {
         Session session     =   Session.getInstance(smtpProperties, new PassAuthenticator());
-        Message msg         =   new MimeMessage(session);
+        MimeMessage msg     =   new MimeMessage(session);
         msg.setFrom(new InternetAddress(Config.SMTP_ACC));
         msg.setRecipient(RecipientType.TO, new InternetAddress(recvEmail));
         msg.setSubject(subject);
-        msg.setText(content);
+        msg.setContent(content, contentType);
         Transport.send(msg);
+    }
+    
+    public void sendPasswordMail(String recvMail, String password)
+    {
+        String subject      =   "SecureChat Password Verification";
+        String contentType  =   "text/html; charset=utf-8";   
+        String content      =   
     }
     
     public static MailController getInstance()
