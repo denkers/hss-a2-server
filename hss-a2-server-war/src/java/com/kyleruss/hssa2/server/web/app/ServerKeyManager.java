@@ -9,6 +9,8 @@ package com.kyleruss.hssa2.server.web.app;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 public class ServerKeyManager 
 {
@@ -32,7 +34,21 @@ public class ServerKeyManager
         }
     }
     
+    public KeyPair getServerKeyPair()
+    {
+        return serverKeyPair;
+    }
+    
+    public PrivateKey getServerPrivateKey()
+    {
+        return serverKeyPair.getPrivate();
+    }
 
+    private PublicKey getServerPublicKey()
+    {
+        return serverKeyPair.getPublic();
+    }
+    
     public static ServerKeyManager getInstance()
     {
         if(instance == null) instance = new ServerKeyManager();
