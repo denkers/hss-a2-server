@@ -47,11 +47,12 @@ public class MailController
         Transport.send(msg);
     }
     
-    public void sendPasswordMail(String recvMail, String password)
+    public void sendPasswordMail(String recvMail, String password) throws MessagingException
     {
         String subject      =   "SecureChat Password Verification";
         String contentType  =   "text/html; charset=utf-8";   
-        String content      =   
+        String content      =   PasswordMailTemplate.getTemplate(password);
+        sendMail(recvMail, content, subject, contentType);
     }
     
     public static MailController getInstance()

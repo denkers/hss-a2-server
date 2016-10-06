@@ -13,12 +13,13 @@ public class PasswordMailTemplate
     "<html>"
     + "<body>"
         + "<h1>Hello,</h1>"
-        + "<h3><small>Below is your vefification password, please enter the code to finalize your registration</small></h3>"
-        + "<div style='border: 1px solid black; padding: 15px'>" + paramName + "</div>"
+        + "<h3><small>Below is your verification password, please enter the code to finalize your registration<br>"
+        + "This code will be valid for a limited time</small></h3>"
+        + "<div style='border: 1px solid black; padding: 15px; width:100px'>" + paramName + "</div>"
     + "</body>"
     + "</html>";
     
-    public String getTemplate(String password)
+    public static String getTemplate(String password)
     {
         String injectedTemplate =   template.replace(paramName, password);
         return injectedTemplate;
