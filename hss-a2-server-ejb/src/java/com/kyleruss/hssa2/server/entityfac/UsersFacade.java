@@ -61,7 +61,7 @@ public class UsersFacade extends AbstractFacade<Users>
         return findAll();
     }
     
-    public List<Users> getOnlineUsers(List<String> userIDList)
+    public List<Users> getUsersInList(List<String> userIDList)
     {
         CriteriaBuilder builder          =   em.getCriteriaBuilder();
         CriteriaQuery<Users> query       =   builder.createQuery(entityClass);
