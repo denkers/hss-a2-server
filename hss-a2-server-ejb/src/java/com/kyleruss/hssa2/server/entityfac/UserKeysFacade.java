@@ -12,7 +12,11 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 @Stateless
 public class UserKeysFacade extends AbstractFacade<UserKeys> 
@@ -51,5 +55,22 @@ public class UserKeysFacade extends AbstractFacade<UserKeys>
         }
         
         return new SimpleEntry<>(result, response);
+    }
+    
+    public UserKeys getKeyForUser(Users user)
+    {
+        if(user == null) return null;
+        
+        else
+        {
+            CriteriaBuilder builder             =   em.getCriteriaBuilder();
+            CriteriaQuery<UserKeys> query       =   builder.createQuery(entityClass);
+            Root<UserKeys> from                 =   query.from(entityClass);
+            query.select(from);
+            query.where(builder.equal(from.get("userId"), user));
+            
+            try { return em.createQuery(query).getSingleResult(); }
+            catch(NoResultException e) { return null; }
+        }
     }
 }
