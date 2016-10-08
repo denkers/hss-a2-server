@@ -8,7 +8,6 @@ package com.kyleruss.hssa2.server.web.app;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 public class UserManager
@@ -25,27 +24,27 @@ public class UserManager
         users   =   new LinkedHashSet<>();
     }
     
-    public boolean addUser(String id)
+    public synchronized boolean addUser(String id)
     {
         return users.add(id);
     }
     
-    public boolean removeUser(String id)
+    public synchronized boolean removeUser(String id)
     {
         return users.remove(id);
     }
     
-    public int getNumCurrentUsers()
+    public synchronized int getNumCurrentUsers()
     {
         return users.size();
     }
     
-    public Collection<String> getUsers()
+    public synchronized Collection<String> getUsers()
     {
         return users;
     }
     
-    public boolean containsUser(String id)
+    public synchronized boolean containsUser(String id)
     {
         return users.contains(id);
     }

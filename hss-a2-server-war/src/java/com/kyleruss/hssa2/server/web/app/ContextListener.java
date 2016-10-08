@@ -15,6 +15,7 @@ public class ContextListener implements ServletContextListener
     public void contextInitialized(ServletContextEvent sce) 
     {
         ServerKeyManager.getInstance().init();
+        UserManager.getInstance().init();
     }
 
     @Override

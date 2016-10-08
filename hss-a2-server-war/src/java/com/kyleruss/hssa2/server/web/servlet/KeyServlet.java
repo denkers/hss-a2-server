@@ -6,7 +6,10 @@
 
 package com.kyleruss.hssa2.server.web.servlet;
 
+import com.google.gson.JsonObject;
+import com.kyleruss.hssa2.server.web.app.CryptoController;
 import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
+import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.IOException;
 import java.security.PublicKey;
 import java.util.Base64;
@@ -47,6 +50,9 @@ public class KeyServlet extends HttpServlet
         PublicKey publicKey =   ServerKeyManager.getInstance().getServerPublicKey();
         byte[] pubKeyBytes  =   publicKey.getEncoded();
         String enc          =   Base64.getEncoder().encodeToString(pubKeyBytes);
-        System.out.println("enc bytes: " + enc);
+        JsonObject jObj     =   new JsonObject();
+        jObj.addProperty("authPubKey", enc);
+        
+        ServletUtils.jsonResponse(response, jObj);
     }
 }

@@ -7,6 +7,7 @@
 package com.kyleruss.hssa2.server.web.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -20,6 +21,9 @@ public class ServletUtils
     
     public static String getJsonResponseString(Object responseData)
     {
+        if(responseData instanceof JsonObject)
+            return ((JsonObject) responseData).toString();
+        
         Gson gson           =   new Gson();
         String jsonResponse =   responseData == null? "" : gson.toJson(responseData);
         return jsonResponse;
@@ -33,6 +37,7 @@ public class ServletUtils
         response.setContentType("application/json");        
         response.getWriter().write(jsonResponse);
     }
+    
     
     public static void encryptedJsonResponse(HttpServletResponse response, Object responseData, Cipher cipher) 
     throws ServletException, IOException, IllegalBlockSizeException, BadPaddingException
