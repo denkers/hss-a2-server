@@ -69,5 +69,15 @@ public class UserServlet extends HttpServlet
         
     }
     
+    protected void processUserConnect(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException 
+    {
+        
+    }
     
+    protected void processUserDisconnect(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException 
+    {
+        
+    }
 }

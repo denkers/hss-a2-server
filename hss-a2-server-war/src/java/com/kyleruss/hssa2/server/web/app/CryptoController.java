@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -34,41 +35,6 @@ import sun.misc.BASE64Encoder;
 public class CryptoController 
 {
     private static CryptoController instance;
-    
-    public SecretKey generateEphemeralKey(String password, String salt) 
-    throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, 
-    InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException, InvalidParameterSpecException 
-    {
-        char[] passChars                =   password.toCharArray();
-        byte[] saltBytes                =   salt.getBytes("UTF-8");
-        SecretKeyFactory keyFactory     =   SecretKeyFactory.getInstance("PBEWithHmacSHA256AndAES_128");
-        PBEKeySpec keySpec              =   new PBEKeySpec(passChars, saltBytes, 20, 128);
-        SecretKey tmp                   =   keyFactory.generateSecret(keySpec);
-        byte[] encodedKey               =   tmp.getEncoded();
-        SecretKeySpec secretKey         =   new SecretKeySpec(encodedKey, "AES"); 
-        
-        Cipher cipher   =   Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        String exampleText  =   "Hello world";
-        AlgorithmParameters params = cipher.getParameters();
-        byte[] iv = params.getParameterSpec(IvParameterSpec.class).getIV();
-        byte[] ciphertext = cipher.doFinal(exampleText.getBytes("UTF-8"));
-        String cipherstring = Base64.getEncoder().encodeToString(ciphertext);
-        System.out.println("cipher text: " + cipherstring);
-        
-        
-        SecretKeyFactory keyFactory2    =   SecretKeyFactory.getInstance("PBEWithHmacSHA256AndAES_128");
-        PBEKeySpec keySpec2             =   new PBEKeySpec(passChars, saltBytes, 20, 128);
-        SecretKey tmp2                  =   keyFactory2.generateSecret(keySpec2);
-        byte[] encodedKey2              =   tmp2.getEncoded();
-        SecretKeySpec secretKey2        =   new SecretKeySpec(encodedKey2, "AES"); 
-        
-        Cipher cipherDec    =   Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipherDec.init(Cipher.DECRYPT_MODE, secretKey2, new IvParameterSpec(iv));
-        byte[] plaintext = cipherDec.doFinal(Base64.getDecoder().decode(cipherstring.getBytes("UTF-8")));
-        
-        return new SecretKeySpec(encodedKey, "AES");
-    }
     
     public String pbeDecrypt(Password password, String salt, String encodedCiphertext) 
     throws NoSuchAlgorithmException, UnsupportedEncodingException, NoSuchPaddingException, InvalidKeyException, 
@@ -100,7 +66,7 @@ public class CryptoController
         return Base64.getEncoder().encodeToString(ciphertext);
     }
     
-    public String publicEncrypt(String plaintext, PublicKey key) 
+    public String publicEncrypt(String plaintext, Key key) 
     throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, 
     NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException
     {
@@ -110,7 +76,7 @@ public class CryptoController
         return Base64.getEncoder().encodeToString(cipherBytes);
     }
     
-    public String publicDecrypt(String ciphertext, PrivateKey key) 
+    public String publicDecrypt(String ciphertext, Key key) 
     throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, 
     IllegalBlockSizeException, InvalidKeyException, BadPaddingException
     {

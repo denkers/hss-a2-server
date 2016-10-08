@@ -7,10 +7,13 @@
 package com.kyleruss.hssa2.server.web.servlet;
 
 import com.google.gson.JsonObject;
+import com.kyleruss.hssa2.commons.EncryptedSession;
 import com.kyleruss.hssa2.server.web.app.CryptoController;
 import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.IOException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Base64;
 import javax.servlet.ServletException;
@@ -47,12 +50,22 @@ public class KeyServlet extends HttpServlet
     private void processServerPublicRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException
     {
-        PublicKey publicKey =   ServerKeyManager.getInstance().getServerPublicKey();
-        byte[] pubKeyBytes  =   publicKey.getEncoded();
-        String enc          =   Base64.getEncoder().encodeToString(pubKeyBytes);
-        JsonObject jObj     =   new JsonObject();
-        jObj.addProperty("authPubKey", enc);
+        try
+        {
+            PublicKey publicKey =   ServerKeyManager.getInstance().getServerPublicKey();
+            PrivateKey privKey  =   ServerKeyManager.getInstance().getServerPrivateKey();
+            byte[] data         =   "Hello world".getBytes("UTF-8");
+            EncryptedSession encSession =   new EncryptedSession(data, privKey);
+            
+            
+            JsonObject jObj     =   ServletUtils.prepareKeySessionResponse(encSession);
+            ServletUtils.jsonResponse(response, jObj);
+        }
         
-        ServletUtils.jsonResponse(response, jObj);
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        
     }
 }

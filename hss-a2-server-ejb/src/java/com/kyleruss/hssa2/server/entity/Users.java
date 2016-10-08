@@ -19,6 +19,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 
 
@@ -48,6 +49,12 @@ public class Users implements Serializable
     @Size(min = 1, max = 100)
     @Column(name = "email")
     private String email;
+    
+    @Basic(optional = true)
+    @Null
+    @Size(min = 1, max = 100)
+    @Column(name = "profile_image")
+    private String profileImage;
     
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -106,6 +113,18 @@ public class Users implements Serializable
     {
         this.createdDate = createdDate;
     }
+
+    public String getProfileImage()
+    {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) 
+    {
+        this.profileImage = profileImage;
+    }
+    
+    
 
     @Override
     public int hashCode() 

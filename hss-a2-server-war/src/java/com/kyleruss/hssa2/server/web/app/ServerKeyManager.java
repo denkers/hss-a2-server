@@ -26,7 +26,7 @@ public class ServerKeyManager
         try
         {
             KeyPairGenerator keyGen =   KeyPairGenerator.getInstance("RSA");
-            keyGen.initialize(512);
+            keyGen.initialize(1024);
             serverKeyPair   =   keyGen.generateKeyPair();
         }
         

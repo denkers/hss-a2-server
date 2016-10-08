@@ -8,13 +8,18 @@ package com.kyleruss.hssa2.server.web.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.kyleruss.hssa2.commons.EncryptedSession;
+import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
+import javax.crypto.NoSuchPaddingException;
 
 public class ServletUtils 
 {
@@ -38,6 +43,18 @@ public class ServletUtils
         response.getWriter().write(jsonResponse);
     }
     
+    public static JsonObject prepareKeySessionResponse(EncryptedSession enc) 
+    throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException
+    {
+        enc.initCipher(Cipher.ENCRYPT_MODE);
+        String data             =   Base64.getEncoder().encodeToString(enc.processData());
+        String key              =   Base64.getEncoder().encodeToString(enc.encryptKey());
+        JsonObject responseObj  =   new JsonObject();
+        
+        responseObj.addProperty("key", key);
+        responseObj.addProperty("data", data);
+        return responseObj;
+    }
     
     public static void encryptedJsonResponse(HttpServletResponse response, Object responseData, Cipher cipher) 
     throws ServletException, IOException, IllegalBlockSizeException, BadPaddingException
