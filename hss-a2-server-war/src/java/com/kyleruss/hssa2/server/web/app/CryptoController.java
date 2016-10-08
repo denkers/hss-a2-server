@@ -70,7 +70,7 @@ public class CryptoController
         return new SecretKeySpec(encodedKey, "AES");
     }
     
-    public String ephemeralDecrypt(Password password, String salt, String encodedCiphertext) 
+    public String pbeDecrypt(Password password, String salt, String encodedCiphertext) 
     throws NoSuchAlgorithmException, UnsupportedEncodingException, NoSuchPaddingException, InvalidKeyException, 
     InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException
     {
@@ -85,7 +85,7 @@ public class CryptoController
         return new String(plaintext);
     }
     
-    public String ephemeralEncrypt(Password password, String salt, String plaintext) 
+    public String pbeEncrypt(Password password, String salt, String plaintext) 
     throws NoSuchAlgorithmException, UnsupportedEncodingException, NoSuchPaddingException, InvalidKeyException, 
     InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException
     {
@@ -119,6 +119,20 @@ public class CryptoController
         byte[] decoded          =   Base64.getDecoder().decode(ciphertext.getBytes("UTF-8"));
         byte[] plaintextBytes   =   cipher.doFinal(decoded);
         return new String(plaintextBytes);
+    }
+    
+    public String generateHash(byte[] data) 
+    throws NoSuchAlgorithmException
+    {
+        return generateHash(data, "MD5");
+    }
+    
+    public String generateHash(byte[] data, String algorithm) 
+    throws NoSuchAlgorithmException
+    {
+        MessageDigest md    =  MessageDigest.getInstance(algorithm);
+        byte[] digest       =   md.digest(data);
+        return Base64.getEncoder().encodeToString(digest);
     }
     
     public static CryptoController getInstance()

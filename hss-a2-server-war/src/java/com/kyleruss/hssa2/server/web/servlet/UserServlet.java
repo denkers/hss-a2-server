@@ -41,8 +41,8 @@ public class UserServlet extends HttpServlet
         try
         {
             String plaintext = "Hello World";
-            String ciphertext = CryptoController.getInstance().ephemeralEncrypt(new Password(password), salt, plaintext);
-            String dectext = CryptoController.getInstance().ephemeralDecrypt(new Password(password), salt, ciphertext);
+            String ciphertext = CryptoController.getInstance().pbeEncrypt(new Password(password), salt, plaintext);
+            String dectext = CryptoController.getInstance().pbeDecrypt(new Password(password), salt, ciphertext);
             
             System.out.println("cipher text: " + ciphertext);
             System.out.println("plain text: " + dectext);

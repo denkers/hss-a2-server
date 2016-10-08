@@ -9,4 +9,9 @@
             30
         </session-timeout>
     </session-config>
+    <listener>
+        <listener-class>
+            com.kyleruss.hssa2.server.web.app.ContextListener
+        </listener-class>
+    </listener>
 </web-app>

@@ -6,7 +6,10 @@
 
 package com.kyleruss.hssa2.server.web.servlet;
 
+import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import java.io.IOException;
+import java.security.PublicKey;
+import java.util.Base64;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,6 +19,13 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "KeyServlet", urlPatterns = {"/KeyServlet"})
 public class KeyServlet extends HttpServlet
 {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException 
+    {
+        processServerPublicRequest(request, response);
+    }
+    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -29,5 +39,14 @@ public class KeyServlet extends HttpServlet
     throws ServletException, IOException 
     {
         
+    }
+    
+    private void processServerPublicRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException
+    {
+        PublicKey publicKey =   ServerKeyManager.getInstance().getServerPublicKey();
+        byte[] pubKeyBytes  =   publicKey.getEncoded();
+        String enc          =   Base64.getEncoder().encodeToString(pubKeyBytes);
+        System.out.println("enc bytes: " + enc);
     }
 }

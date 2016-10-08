@@ -44,7 +44,7 @@ public class ServerKeyManager
         return serverKeyPair.getPrivate();
     }
 
-    private PublicKey getServerPublicKey()
+    public PublicKey getServerPublicKey()
     {
         return serverKeyPair.getPublic();
     }
