@@ -21,6 +21,8 @@ public class ServerKeyManager
     
     protected void init()
     {
+        if(serverKeyPair != null) return;
+        
         try
         {
             KeyPairGenerator keyGen =   KeyPairGenerator.getInstance("RSA");

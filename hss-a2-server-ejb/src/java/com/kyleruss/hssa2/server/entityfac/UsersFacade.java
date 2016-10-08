@@ -9,6 +9,7 @@ package com.kyleruss.hssa2.server.entityfac;
 import com.kyleruss.hssa2.server.entity.Users;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import javax.ejb.Stateless;
@@ -61,7 +62,7 @@ public class UsersFacade extends AbstractFacade<Users>
         return findAll();
     }
     
-    public List<Users> getUsersInList(List<String> userIDList)
+    public List<Users> getUsersInList(Collection<String> userIDList)
     {
         CriteriaBuilder builder          =   em.getCriteriaBuilder();
         CriteriaQuery<Users> query       =   builder.createQuery(entityClass);
