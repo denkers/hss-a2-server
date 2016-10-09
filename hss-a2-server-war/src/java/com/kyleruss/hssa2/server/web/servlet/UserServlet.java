@@ -10,12 +10,15 @@ import com.google.gson.JsonObject;
 import com.kyleruss.hssa2.commons.CryptoUtils;
 import com.kyleruss.hssa2.commons.Password;
 import com.kyleruss.hssa2.commons.RequestPaths;
+import com.kyleruss.hssa2.server.entityfac.UsersFacade;
 import com.kyleruss.hssa2.server.web.app.CryptoController;
 import com.kyleruss.hssa2.server.web.app.MailController;
 import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
+import com.kyleruss.hssa2.server.web.app.UserManager;
 import com.kyleruss.hssa2.server.web.util.ActionResponse;
 import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.IOException;
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 })
 public class UserServlet extends HttpServlet 
 {
+    @EJB
+    private UsersFacade usersFacade;
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -88,9 +93,7 @@ public class UserServlet extends HttpServlet
     {
         try
         {
-            String data         =   ServletUtils.getClientJson(request);
-            String decData      =   CryptoController.getInstance().publicDecrypt(data, ServerKeyManager.getInstance().getServerPrivateKey());
-            JsonObject dataObj  =   ServletUtils.parseJsonInput(decData);
+            JsonObject dataObj  =   ServletUtils.getPublicEncryptedClientJson(request, ServerKeyManager.getInstance().getServerPrivateKey());
             
             String userEmail    =   dataObj.getAsJsonPrimitive("email").getAsString();
             String password     =   CryptoUtils.generateRandomString(8, CryptoUtils.ALPHA_NUMERIC);
@@ -110,7 +113,31 @@ public class UserServlet extends HttpServlet
     protected void processUserConnect(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException 
     {
+        try
+        {
+            JsonObject dataObj  =   ServletUtils.getPublicEncryptedClientJson(request, ServerKeyManager.getInstance().getServerPrivateKey());
+            String phoneID      =   dataObj.getAsJsonPrimitive("phoneID").getAsString();
+            boolean connectStatus;
+            
+            if(usersFacade.find(phoneID) != null)
+            {
+                UserManager.getInstance().addUser(phoneID);
+                connectStatus   =   true;
+            }
+            
+            else connectStatus = false;
+            
+            String connectMessage       =   connectStatus? "Successfully connected" : "Failed to connect, user ID not found";
+            ActionResponse actResponse  =   new ActionResponse(connectMessage, connectStatus);
+            ServletUtils.jsonResponse(response, actResponse);
+        }
         
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+            ActionResponse actResponse  =   new ActionResponse("Failed to connect to server", false);
+            ServletUtils.jsonResponse(response, actResponse);
+        }
     }
     
     protected void processUserDisconnect(HttpServletRequest request, HttpServletResponse response)
