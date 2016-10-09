@@ -21,7 +21,8 @@ import javax.servlet.http.HttpServletResponse;
     RequestPaths.SERV_CONNECT_REQ,
     RequestPaths.PASS_REQ,
     RequestPaths.USER_LIST_REQ,
-    RequestPaths.PROFILE_UP_REQ
+    RequestPaths.PROFILE_UP_REQ,
+    RequestPaths.SERV_DISCON_REQ
 })
 public class UserServlet extends HttpServlet 
 {
@@ -57,11 +58,21 @@ public class UserServlet extends HttpServlet
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException 
     {
+        String path =   request.getServletPath();
         
+        switch(path)
+        {
+            case RequestPaths.SERV_CONNECT_REQ:
+            case RequestPaths.PASS_REQ:
+            case RequestPaths.USER_LIST_REQ:
+            case RequestPaths.PROFILE_UP_REQ:
+            case RequestPaths.SERV_DISCON_REQ:
+        }
     }
     
     protected void processUserConnect(HttpServletRequest request, HttpServletResponse response)

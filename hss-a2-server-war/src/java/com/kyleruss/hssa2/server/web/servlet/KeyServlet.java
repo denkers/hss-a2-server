@@ -14,6 +14,7 @@ import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Base64;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -32,7 +33,10 @@ public class KeyServlet extends HttpServlet
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException 
     {
-        processServerPublicRequest(request, response);
+        String path =   request.getServletPath();
+        
+        if(path.equals(RequestPaths.PUBLIC_GET_REQ))
+            processServerPublicRequest(request, response);
     }
     
     /**
@@ -47,28 +51,17 @@ public class KeyServlet extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException 
     {
-        
+        String path =   request.getServletPath();
     }
     
     private void processServerPublicRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException
     {
-        try
-        {
-            PublicKey publicKey =   ServerKeyManager.getInstance().getServerPublicKey();
-            PrivateKey privKey  =   ServerKeyManager.getInstance().getServerPrivateKey();
-            byte[] data         =   "Hello world".getBytes("UTF-8");
-            EncryptedSession encSession =   new EncryptedSession(data, privKey);
-            
-            
-            JsonObject jObj     =   ServletUtils.prepareKeySessionResponse(encSession);
-            ServletUtils.jsonResponse(response, jObj);
-        }
+        PublicKey publicKey     =   ServerKeyManager.getInstance().getServerPublicKey();
+        JsonObject responseObj  =   new JsonObject();
+        String encKey           =   Base64.getEncoder().encodeToString(publicKey.getEncoded());
         
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        
+        responseObj.addProperty("serverPublicKey", encKey);
+        ServletUtils.jsonResponse(response, responseObj);
     }
 }
