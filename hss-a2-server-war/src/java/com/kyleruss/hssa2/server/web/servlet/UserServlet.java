@@ -127,7 +127,7 @@ public class UserServlet extends HttpServlet
             
             else connectStatus = false;
             
-            String connectMessage       =   connectStatus? "Successfully connected" : "Failed to connect, user ID not found";
+            String connectMessage       =   connectStatus? "Successfully connected" : "Failed to connect: User ID not found";
             ActionResponse actResponse  =   new ActionResponse(connectMessage, connectStatus);
             ServletUtils.jsonResponse(response, actResponse);
         }
@@ -143,6 +143,40 @@ public class UserServlet extends HttpServlet
     protected void processUserDisconnect(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException 
     {
+        try
+        {
+            JsonObject dataObj          =   ServletUtils.getPublicEncryptedClientJson(request, ServerKeyManager.getInstance().getServerPrivateKey());
+            String phoneID              =   dataObj.getAsJsonPrimitive("phoneID").getAsString();
+            boolean disconnectStatus    =   false;
+            String disconnectResponse;
+            
+            if(usersFacade.find(phoneID) != null)
+            {
+                if(!UserManager.getInstance().containsUser(phoneID))
+                {
+                    disconnectStatus     =   false;
+                    disconnectResponse    =   "Failed to disconnect: You are not currently connected";
+                }
+                
+                else
+                {
+                    UserManager.getInstance().removeUser(phoneID);
+                    disconnectStatus     =   true;
+                    disconnectResponse   =   "Successfully disconnected from server";
+                }
+            }
+            
+            else disconnectResponse  =   "Failed to disconnect: User ID not found";
+            
+            ActionResponse actResponse  =   new ActionResponse(disconnectResponse, disconnectStatus);
+            ServletUtils.jsonResponse(response, actResponse);
+        }
         
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+            ActionResponse actResponse  =   new ActionResponse("Failed to disconnect from the server", false);
+            ServletUtils.jsonResponse(response, actResponse);
+        }
     }
 }
