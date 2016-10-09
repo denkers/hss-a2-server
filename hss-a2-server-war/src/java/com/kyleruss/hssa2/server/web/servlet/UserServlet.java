@@ -6,9 +6,15 @@
 
 package com.kyleruss.hssa2.server.web.servlet;
 
+import com.google.gson.JsonObject;
+import com.kyleruss.hssa2.commons.CryptoUtils;
 import com.kyleruss.hssa2.commons.Password;
 import com.kyleruss.hssa2.commons.RequestPaths;
 import com.kyleruss.hssa2.server.web.app.CryptoController;
+import com.kyleruss.hssa2.server.web.app.MailController;
+import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
+import com.kyleruss.hssa2.server.web.util.ActionResponse;
+import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -68,10 +74,36 @@ public class UserServlet extends HttpServlet
         switch(path)
         {
             case RequestPaths.SERV_CONNECT_REQ:
-            case RequestPaths.PASS_REQ:
+            case RequestPaths.PASS_REQ: 
+                 processUserPasswordRequest(request, response); 
+                 break;
             case RequestPaths.USER_LIST_REQ:
             case RequestPaths.PROFILE_UP_REQ:
             case RequestPaths.SERV_DISCON_REQ:
+        }
+    }
+    
+    protected void processUserPasswordRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException 
+    {
+        try
+        {
+            String data         =   ServletUtils.getClientJson(request);
+            String decData      =   CryptoController.getInstance().publicDecrypt(data, ServerKeyManager.getInstance().getServerPrivateKey());
+            JsonObject dataObj  =   ServletUtils.parseJsonInput(decData);
+            
+            String userEmail    =   dataObj.getAsJsonPrimitive("email").getAsString();
+            String password     =   CryptoUtils.generateRandomString(8, CryptoUtils.ALPHA_NUMERIC);
+            MailController.getInstance().sendPasswordMail(userEmail, password);
+            ActionResponse resp =   new ActionResponse("An authentication code has been sent to your email", true);
+            ServletUtils.jsonResponse(response, resp);
+        }
+        
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+            ActionResponse resp =   new ActionResponse("Failed to send authentication code ", false);
+            ServletUtils.jsonResponse(response, resp);
         }
     }
     

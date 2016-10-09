@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
 import javax.crypto.NoSuchPaddingException;
+import javax.servlet.http.HttpServletRequest;
 
 public class ServletUtils 
 {
@@ -57,9 +58,14 @@ public class ServletUtils
         return responseObj;
     }
     
-    public JsonObject parseJsonInput(String json)
+    public static JsonObject parseJsonInput(String json)
     {
         return new JsonParser().parse(json).getAsJsonObject();
+    }
+    
+    public static String getClientJson(HttpServletRequest request)
+    {
+        return request.getParameter("clientData");
     }
     
     public static void encryptedJsonResponse(HttpServletResponse response, Object responseData, Cipher cipher) 

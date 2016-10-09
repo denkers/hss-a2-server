@@ -52,6 +52,12 @@ public class KeyServlet extends HttpServlet
     throws ServletException, IOException 
     {
         String path =   request.getServletPath();
+        
+        switch(path)
+        {
+            case RequestPaths.SERV_KEY_REQ:
+            case RequestPaths.PUBLIC_SEND_REQ:
+        }
     }
     
     private void processServerPublicRequest(HttpServletRequest request, HttpServletResponse response)
