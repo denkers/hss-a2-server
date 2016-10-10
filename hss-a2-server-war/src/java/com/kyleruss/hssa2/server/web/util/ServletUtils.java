@@ -10,9 +10,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kyleruss.hssa2.commons.EncryptedSession;
+import com.kyleruss.hssa2.server.web.app.CryptoController;
 import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -66,6 +69,24 @@ public class ServletUtils
     public static String getClientJson(HttpServletRequest request)
     {
         return request.getParameter("clientData");
+    }
+    
+    public static JsonObject getPublicEncryptedClientJson(HttpServletRequest request, Key key, String paramName) 
+    throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, 
+    IllegalBlockSizeException, InvalidKeyException, BadPaddingException
+    {
+        String data         =   request.getParameter(paramName);
+        String decData      =   CryptoController.getInstance().publicDecrypt(data, key);
+        JsonObject dataObj  =   ServletUtils.parseJsonInput(decData);
+        
+        return dataObj;
+    }
+    
+    public static JsonObject getPublicEncryptedClientJson(HttpServletRequest request, Key key) 
+    throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, 
+    IllegalBlockSizeException, InvalidKeyException, BadPaddingException
+    {
+        return getPublicEncryptedClientJson(request, key, "clientData");
     }
     
     public static void encryptedJsonResponse(HttpServletResponse response, Object responseData, Cipher cipher) 

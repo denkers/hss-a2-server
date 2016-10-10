@@ -79,12 +79,17 @@ public class UserServlet extends HttpServlet
         switch(path)
         {
             case RequestPaths.SERV_CONNECT_REQ:
+                processUserConnect(request, response);
+                break;
             case RequestPaths.PASS_REQ: 
                  processUserPasswordRequest(request, response); 
                  break;
             case RequestPaths.USER_LIST_REQ:
             case RequestPaths.PROFILE_UP_REQ:
             case RequestPaths.SERV_DISCON_REQ:
+                processUserDisconnect(request, response);
+                break;
+            default: break;
         }
     }
     
@@ -116,7 +121,7 @@ public class UserServlet extends HttpServlet
         try
         {
             JsonObject dataObj  =   ServletUtils.getPublicEncryptedClientJson(request, ServerKeyManager.getInstance().getServerPrivateKey());
-            String phoneID      =   dataObj.getAsJsonPrimitive("phoneID").getAsString();
+            String phoneID      =   dataObj.get("phoneID").getAsString();
             boolean connectStatus;
             
             if(usersFacade.find(phoneID) != null)
