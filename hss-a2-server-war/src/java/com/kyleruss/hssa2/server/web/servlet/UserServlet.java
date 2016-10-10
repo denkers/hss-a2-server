@@ -52,29 +52,6 @@ public class UserServlet extends HttpServlet
     @EJB
     private UserKeysFacade userKeysFacade;
     
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException 
-    {
-        String password =   "abcdefghrlemfyir";
-        String salt     =   "welymcturkcmpoei";
-        
-        try
-        {
-            String plaintext = "Hello World";
-        /*    String ciphertext = CryptoController.getInstance().pbeEncrypt(new Password(password), salt, plaintext);
-            String dectext = CryptoController.getInstance().pbeDecrypt(new Password(password), salt, ciphertext);
-            
-            System.out.println("cipher text: " + ciphertext);
-            System.out.println("plain text: " + dectext); */
-        }
-        
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -149,6 +126,7 @@ public class UserServlet extends HttpServlet
         catch(Exception e)
         {
             System.out.println(e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -174,6 +152,7 @@ public class UserServlet extends HttpServlet
         catch(Exception e)
         {
             System.out.println(e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
     

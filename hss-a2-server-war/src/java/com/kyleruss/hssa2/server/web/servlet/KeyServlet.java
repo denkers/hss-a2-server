@@ -119,6 +119,7 @@ public class KeyServlet extends HttpServlet
         catch(Exception e)
         {
             System.out.println(e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
    
@@ -168,6 +169,7 @@ public class KeyServlet extends HttpServlet
         catch(Exception e)
         {
             System.out.println(e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }
