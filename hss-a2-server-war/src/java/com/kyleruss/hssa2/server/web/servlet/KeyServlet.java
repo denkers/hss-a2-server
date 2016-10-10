@@ -7,6 +7,7 @@
 package com.kyleruss.hssa2.server.web.servlet;
 
 import com.google.gson.JsonObject;
+import com.kyleruss.hssa2.commons.CryptoUtils;
 import com.kyleruss.hssa2.commons.EncryptedSession;
 import com.kyleruss.hssa2.commons.RequestPaths;
 import com.kyleruss.hssa2.server.entity.UserKeys;
@@ -128,13 +129,16 @@ public class KeyServlet extends HttpServlet
                 responseObj.addProperty("statusMessage", createUserResult.getValue());
             }
             
-            Users user      =   usersFacade.find(phoneID);
-            String key      =   userKeysFacade.getKeyForUser(user).getPubKey();
+            PublicKey userKey           =   (PublicKey) CryptoUtils.stringToAsymKey(publicKey, false, true);
+            byte[] responseBytes        =   responseObj.toString().getBytes("UTF-8");
+            EncryptedSession encSession =   new EncryptedSession(responseBytes, userKey);  
+            JsonObject wrappedObj       =   ServletUtils.prepareKeySessionResponse(encSession);
+            ServletUtils.jsonResponse(response, wrappedObj);
         }
         
         catch(Exception e)
         {
-            
+            System.out.println(e.getMessage());
         }
     }
 }
