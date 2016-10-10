@@ -7,27 +7,22 @@
 package com.kyleruss.hssa2.server.web.servlet;
 
 import com.kyleruss.hssa2.commons.Password;
+import com.kyleruss.hssa2.commons.RequestPaths;
 import com.kyleruss.hssa2.server.web.app.CryptoController;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "UserServlet", urlPatterns = {"/UserServlet"})
+@WebServlet(name = "UserServlet", urlPatterns = 
+{
+    RequestPaths.SERV_CONNECT_REQ,
+    RequestPaths.PASS_REQ,
+    RequestPaths.USER_LIST_REQ,
+    RequestPaths.PROFILE_UP_REQ
+})
 public class UserServlet extends HttpServlet 
 {
     

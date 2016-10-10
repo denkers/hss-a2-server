@@ -8,6 +8,7 @@ package com.kyleruss.hssa2.server.web.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.kyleruss.hssa2.commons.EncryptedSession;
 import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import java.io.IOException;
@@ -54,6 +55,11 @@ public class ServletUtils
         responseObj.addProperty("key", key);
         responseObj.addProperty("data", data);
         return responseObj;
+    }
+    
+    public JsonObject parseJsonInput(String json)
+    {
+        return new JsonParser().parse(json).getAsJsonObject();
     }
     
     public static void encryptedJsonResponse(HttpServletResponse response, Object responseData, Cipher cipher) 
