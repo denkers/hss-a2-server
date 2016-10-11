@@ -75,7 +75,7 @@ public class UsersFacade extends AbstractFacade<Users>
         CriteriaBuilder builder          =   em.getCriteriaBuilder();
         CriteriaQuery<Users> query       =   builder.createQuery(entityClass);
         Root<Users> from                 =   query.from(entityClass);
-        query.select(from);
+        query.multiselect(from.get("id"), from.get("name"), from.get("profileImage"));
         query.where(from.get("id").in(userIDList));
         
         try { return em.createQuery(query).getResultList(); }
