@@ -40,18 +40,26 @@ public class UsersFacade extends AbstractFacade<Users>
     
     public Entry<Boolean, String> createUserAccount(String phoneID, String name, String email)
     {
-        boolean result  =   false;
+        boolean result;
         String response;
         
-        if(find(phoneID) != null)
-            response    =   "Account with this phone ID already exists";
+        Users user  =  find(phoneID);
         
-        else
+        if(user == null)
         {
-            Users user  =   new Users(phoneID, name, email);
+            user        =   new Users(phoneID, name, email);
             create(user);
             result      =   em.contains(user);
             response    =   result? "Successfully created account" : "Failed to create account";
+        }
+        
+        else
+        {
+            user.setEmail(email);
+            user.setName(name);
+            edit(user);
+            result      =   true;
+            response    =   "Successfully updated account";   
         }
         
         return new SimpleEntry<>(result, response);
