@@ -6,10 +6,15 @@
 
 package com.kyleruss.hssa2.server.web.servlet;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kyleruss.hssa2.commons.CryptoUtils;
+import com.kyleruss.hssa2.commons.EncryptedSession;
 import com.kyleruss.hssa2.commons.Password;
 import com.kyleruss.hssa2.commons.RequestPaths;
+import com.kyleruss.hssa2.server.entity.UserKeys;
+import com.kyleruss.hssa2.server.entity.Users;
+import com.kyleruss.hssa2.server.entityfac.UserKeysFacade;
 import com.kyleruss.hssa2.server.entityfac.UsersFacade;
 import com.kyleruss.hssa2.server.web.app.CryptoController;
 import com.kyleruss.hssa2.server.web.app.MailController;
@@ -18,6 +23,9 @@ import com.kyleruss.hssa2.server.web.app.UserManager;
 import com.kyleruss.hssa2.server.web.util.ActionResponse;
 import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.IOException;
+import java.security.Key;
+import java.security.PublicKey;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -37,6 +45,9 @@ public class UserServlet extends HttpServlet
 {
     @EJB
     private UsersFacade usersFacade;
+    
+    @EJB
+    private UserKeysFacade userKeysFacade;
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -93,7 +104,32 @@ public class UserServlet extends HttpServlet
         }
     }
     
-    protected void processUserPasswordRequest(HttpServletRequest request, HttpServletResponse response)
+    private void processUserListRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException 
+    {
+        try
+        {
+            JsonObject inputObj                 =   ServletUtils.getPublicEncryptedClientJson(request, 
+                                                    ServerKeyManager.getInstance().getServerPrivateKey());
+            JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(inputObj);
+            List<Users> users                   =   usersFacade.getUsersInList(UserManager.getInstance().getUsers());
+            String userListJson                 =   new Gson().toJson(users);
+            responseObj.addProperty("userList", userListJson);
+            Users user                          =   usersFacade.find(inputObj.get("userID").getAsString());
+            UserKeys usersKey                   =   userKeysFacade.getKeyForUser(user);
+            Key userPublicKey                   =   CryptoUtils.stringToAsymKey(usersKey.getPubKey(), false, true);
+            EncryptedSession encSession         =   new EncryptedSession(responseObj.toString().getBytes("UTF-8"), userPublicKey);
+            JsonObject encResponseObj           =   ServletUtils.prepareKeySessionResponse(encSession);
+            ServletUtils.jsonResponse(response, encResponseObj);    
+        }
+        
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    private void processUserPasswordRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException 
     {
         try
