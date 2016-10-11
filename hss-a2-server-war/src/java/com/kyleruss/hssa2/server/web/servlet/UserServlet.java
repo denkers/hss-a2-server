@@ -22,6 +22,8 @@ import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import com.kyleruss.hssa2.server.web.app.UserManager;
 import com.kyleruss.hssa2.server.web.util.ActionResponse;
 import com.kyleruss.hssa2.server.web.util.ServletUtils;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.Key;
 import java.security.PublicKey;
@@ -114,7 +116,6 @@ public class UserServlet extends HttpServlet
     {
         try
         {
-            CryptoController cryptoController   =   CryptoController.getInstance();
             String keyParam                     =   request.getParameter("authKey");
             String dataParam                    =   request.getParameter("clientData");
             EncryptedSession encSession         =   new EncryptedSession(keyParam, dataParam, 
@@ -124,7 +125,25 @@ public class UserServlet extends HttpServlet
             JsonObject requestObj               =   ServletUtils.parseJsonInput(decData);
             JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(requestObj);
             byte[] imageData                    =   Base64.getDecoder().decode(requestObj.get("imageData").getAsString());
-            String imageName                    =   CryptoUtils.generateRandomString(6, CryptoUtils.ALPHA_NUMERIC) + ".jpg";
+            String imageName                    =   "";
+            
+            do imageName                        =   CryptoUtils.generateRandomString(6, CryptoUtils.ALPHA_NUMERIC) + ".jpg";
+            while(usersFacade.imageExists(imageName));
+            
+            String imagePath                    =   getServletConfig().getServletContext().getRealPath("WEB-INF") + "/resources/" + imageName;
+            try(BufferedOutputStream outputStream   =   new BufferedOutputStream(new FileOutputStream(imagePath)))
+            {
+                outputStream.write(imageData);
+                responseObj.addProperty("status", true);
+                responseObj.addProperty("statusMessage", "Profile image successfully uploaded");
+                responseObj.addProperty("imageName", imageName);
+            }
+            
+            Users user                          =   usersFacade.find(requestObj.get("userID").getAsString());
+            UserKeys usersKey                   =   userKeysFacade.getKeyForUser(user);
+            Key userPublicKey                   =   CryptoUtils.stringToAsymKey(usersKey.getPubKey(), false, true);
+            String encryptedResponse            =   CryptoController.getInstance().publicEncrypt(responseObj.toString(), userPublicKey);
+            response.getWriter().write(encryptedResponse);
         }
         
         catch(Exception e)
