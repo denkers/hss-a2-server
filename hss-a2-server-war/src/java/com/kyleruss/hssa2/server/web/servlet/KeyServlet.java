@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "KeyServlet", urlPatterns = 
 {
-    RequestPaths.SERV_KEY_REQ,
+    RequestPaths.USER_PUBLIC_GET_REQ,
     RequestPaths.USER_PUBLIC_SEND_REQ,
     RequestPaths.SERV_PUBLIC_GET_REQ
 })
@@ -69,7 +69,9 @@ public class KeyServlet extends HttpServlet
         
         switch(path)
         {
-            case RequestPaths.SERV_KEY_REQ:
+            case RequestPaths.USER_PUBLIC_GET_REQ:
+                processUserPublicGetRequest(request, response);
+                break;
             case RequestPaths.USER_PUBLIC_SEND_REQ:
                 processUserPublicSendRequest(request, response);
                 break;
@@ -88,6 +90,38 @@ public class KeyServlet extends HttpServlet
         ServletUtils.jsonResponse(response, responseObj);
     }
     
+    private void processUserPublicGetRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException
+    {
+        try
+        {
+            JsonObject inputObj                 =   ServletUtils.getPublicEncryptedClientJson(request, 
+                                                    ServerKeyManager.getInstance().getServerPrivateKey());
+            JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(inputObj);
+            String requestedUserID              =   inputObj.get("reqUserID").getAsString();
+            String userID                       =   inputObj.get("userID").getAsString();
+            Users targetUser                    =   usersFacade.find(requestedUserID);
+            Users user                          =   usersFacade.find(userID);
+            
+            if(targetUser != null && user != null)
+            {
+                String reqKeyStr        =   userKeysFacade.getKeyForUser(targetUser).getPubKey();
+                String userKeyStr       =   userKeysFacade.getKeyForUser(user).getPubKey();
+                PublicKey userPublicKey =   (PublicKey) CryptoUtils.stringToAsymKey(userKeyStr, false, true);
+
+                responseObj.addProperty("reqPublicKeyresult", reqKeyStr);
+                EncryptedSession encresponse    =   new EncryptedSession(responseObj.toString().getBytes("UTF-8"), userPublicKey);
+                JsonObject encResponseObj       =   ServletUtils.prepareKeySessionResponse(encresponse);
+                ServletUtils.jsonResponse(response, encResponseObj);
+            }
+        }
+        
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+   
     private void processUserPublicSendRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException
     {
@@ -102,17 +136,12 @@ public class KeyServlet extends HttpServlet
             byte[] data                         =   Base64.getDecoder().decode(request.getParameter("clientData").getBytes("UTF-8"));
             String decData                      =   cryptoController.pbeDecrypt(password, salt, data);
             JsonObject requestObj               =   ServletUtils.parseJsonInput(decData);
-            JsonObject responseObj              =   new JsonObject();
+            JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(requestObj);
             
             String phoneID                      =   requestObj.get("phoneID").getAsString();
             String name                         =   requestObj.get("name").getAsString();
             String publicKey                    =   requestObj.get("publicKey").getAsString();
             String email                        =   requestObj.get("email").getAsString();
-            String nonce                        =   requestObj.get("nonce").getAsString();
-            String reqID                        =   requestObj.get("requestID").getAsString();
-            
-            responseObj.addProperty("nonce", nonce);
-            responseObj.addProperty("requestID", reqID);
             
             Entry<Boolean, String> createUserResult =   usersFacade.createUserAccount(phoneID, name, email);
             if(createUserResult.getKey())

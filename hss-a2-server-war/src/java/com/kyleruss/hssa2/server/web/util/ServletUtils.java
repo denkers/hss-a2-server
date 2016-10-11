@@ -61,6 +61,16 @@ public class ServletUtils
         return responseObj;
     }
     
+    public static JsonObject createAuthResponseObjFromInput(JsonObject requestObj)
+    {
+        JsonObject responseObj  =   new JsonObject();
+        String nonce            =   requestObj.get("nonce").getAsString();
+        String reqID            =   requestObj.get("requestID").getAsString();
+        responseObj.addProperty("nonce", nonce);
+        responseObj.addProperty("requestID", reqID);
+        return responseObj;
+    }
+    
     public static JsonObject parseJsonInput(String json)
     {
         return new JsonParser().parse(json).getAsJsonObject();
@@ -75,7 +85,7 @@ public class ServletUtils
     throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, 
     IllegalBlockSizeException, InvalidKeyException, BadPaddingException
     {
-        String data         =   request.getParameter(paramName);
+        String data         =   new String(Base64.getDecoder().decode(request.getParameter(paramName)));
         String decData      =   CryptoController.getInstance().publicDecrypt(data, key);
         JsonObject dataObj  =   ServletUtils.parseJsonInput(decData);
         
