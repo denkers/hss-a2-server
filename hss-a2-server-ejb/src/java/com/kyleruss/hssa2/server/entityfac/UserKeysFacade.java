@@ -46,12 +46,25 @@ public class UserKeysFacade extends AbstractFacade<UserKeys>
         
         else
         {
-            UserKeys keyRecord  =   new UserKeys();
-            keyRecord.setUserId(user);
-            keyRecord.setPubKey(publicKey);
-            create(keyRecord);
-            result      =   em.contains(keyRecord);
-            response    =   result? "Successfully create users public key" : "Failed to create user public key";   
+            UserKeys keyRecord  =   getKeyForUser(user);
+            
+            if(keyRecord == null)
+            {
+                keyRecord   =   new UserKeys();
+                keyRecord.setUserId(user);
+                keyRecord.setPubKey(publicKey);
+                create(keyRecord);
+                result      =   em.contains(keyRecord);
+                response    =   result? "Successfully created users public key" : "Failed to create user public key";   
+            }
+            
+            else
+            {
+                keyRecord.setPubKey(publicKey);
+                edit(keyRecord);
+                result      =   true;
+                response    =   "Successfully updated public key record";   
+            }
         }
         
         return new SimpleEntry<>(result, response);
