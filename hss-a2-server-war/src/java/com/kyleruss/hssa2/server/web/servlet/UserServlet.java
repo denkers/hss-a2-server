@@ -25,6 +25,7 @@ import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.IOException;
 import java.security.Key;
 import java.security.PublicKey;
+import java.util.Base64;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -93,14 +94,42 @@ public class UserServlet extends HttpServlet
                 processUserConnect(request, response);
                 break;
             case RequestPaths.PASS_REQ: 
-                 processUserPasswordRequest(request, response); 
-                 break;
+                processUserPasswordRequest(request, response); 
+                break;
             case RequestPaths.USER_LIST_REQ:
+                processUserListRequest(request, response);
+                break;
             case RequestPaths.PROFILE_UP_REQ:
+                processProfileImageUploadRequest(request, response);
+                break;
             case RequestPaths.SERV_DISCON_REQ:
                 processUserDisconnect(request, response);
                 break;
             default: break;
+        }
+    }
+    
+    private void processProfileImageUploadRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException  
+    {
+        try
+        {
+            CryptoController cryptoController   =   CryptoController.getInstance();
+            String keyParam                     =   request.getParameter("authKey");
+            String dataParam                    =   request.getParameter("clientData");
+            EncryptedSession encSession         =   new EncryptedSession(keyParam, dataParam, 
+                                                    ServerKeyManager.getInstance().getServerPrivateKey(), true);
+            encSession.unlock();
+            String decData                      =   new String(encSession.getData());
+            JsonObject requestObj               =   ServletUtils.parseJsonInput(decData);
+            JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(requestObj);
+            byte[] imageData                    =   Base64.getDecoder().decode(requestObj.get("imageData").getAsString());
+            String imageName                    =   CryptoUtils.generateRandomString(6, CryptoUtils.ALPHA_NUMERIC) + ".jpg";
+        }
+        
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
         }
     }
     

@@ -70,6 +70,17 @@ public class UsersFacade extends AbstractFacade<Users>
         return findAll();
     }
     
+    public boolean imageExists(String imageName)
+    {
+        CriteriaBuilder builder          =   em.getCriteriaBuilder();
+        CriteriaQuery<Users> query       =   builder.createQuery(entityClass);
+        Root<Users> from                 =   query.from(entityClass);
+        query.select(from);
+        query.where(builder.equal(from.get("profileImage"), imageName));
+        
+        return !em.createQuery(query).getResultList().isEmpty();
+    }
+    
     public List<Users> getUsersInList(Collection<String> userIDList)
     {
         CriteriaBuilder builder          =   em.getCriteriaBuilder();
