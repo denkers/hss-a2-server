@@ -9,9 +9,8 @@ package com.kyleruss.hssa2.server.web.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.kyleruss.hssa2.commons.CryptoCommons;
 import com.kyleruss.hssa2.commons.EncryptedSession;
-import com.kyleruss.hssa2.server.web.app.CryptoController;
-import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -86,7 +85,7 @@ public class ServletUtils
     IllegalBlockSizeException, InvalidKeyException, BadPaddingException
     {
         String data         =   new String(Base64.getDecoder().decode(request.getParameter(paramName)));
-        String decData      =   CryptoController.getInstance().publicDecrypt(data, key);
+        String decData      =   CryptoCommons.publicDecrypt(data, key);
         JsonObject dataObj  =   ServletUtils.parseJsonInput(decData);
         
         return dataObj;

@@ -8,6 +8,7 @@ package com.kyleruss.hssa2.server.web.servlet;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.kyleruss.hssa2.commons.CryptoCommons;
 import com.kyleruss.hssa2.commons.CryptoUtils;
 import com.kyleruss.hssa2.commons.EncryptedSession;
 import com.kyleruss.hssa2.commons.Password;
@@ -16,7 +17,6 @@ import com.kyleruss.hssa2.server.entity.UserKeys;
 import com.kyleruss.hssa2.server.entity.Users;
 import com.kyleruss.hssa2.server.entityfac.UserKeysFacade;
 import com.kyleruss.hssa2.server.entityfac.UsersFacade;
-import com.kyleruss.hssa2.server.web.app.CryptoController;
 import com.kyleruss.hssa2.server.web.app.MailController;
 import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import com.kyleruss.hssa2.server.web.app.UserManager;
@@ -119,7 +119,7 @@ public class UserServlet extends HttpServlet
             Users user                          =   usersFacade.find(requestObj.get("userID").getAsString());
             UserKeys usersKey                   =   userKeysFacade.getKeyForUser(user);
             Key userPublicKey                   =   CryptoUtils.stringToAsymKey(usersKey.getPubKey(), false, true);
-            String encryptedResponse            =   CryptoController.getInstance().publicEncrypt(responseObj.toString(), userPublicKey);
+            String encryptedResponse            =   CryptoCommons.publicEncrypt(responseObj.toString(), userPublicKey);
             response.getWriter().write(encryptedResponse);
         }
         

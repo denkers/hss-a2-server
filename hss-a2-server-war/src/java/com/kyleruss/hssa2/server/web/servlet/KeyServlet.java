@@ -7,6 +7,7 @@
 package com.kyleruss.hssa2.server.web.servlet;
 
 import com.google.gson.JsonObject;
+import com.kyleruss.hssa2.commons.CryptoCommons;
 import com.kyleruss.hssa2.commons.CryptoUtils;
 import com.kyleruss.hssa2.commons.EncryptedSession;
 import com.kyleruss.hssa2.commons.RequestPaths;
@@ -14,7 +15,6 @@ import com.kyleruss.hssa2.server.entity.UserKeys;
 import com.kyleruss.hssa2.server.entity.Users;
 import com.kyleruss.hssa2.server.entityfac.UserKeysFacade;
 import com.kyleruss.hssa2.server.entityfac.UsersFacade;
-import com.kyleruss.hssa2.server.web.app.CryptoController;
 import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.IOException;
@@ -128,14 +128,13 @@ public class KeyServlet extends HttpServlet
     {
         try
         {
-            CryptoController cryptoController   =   CryptoController.getInstance();
             JsonObject passSaltObj              =   ServletUtils.getPublicEncryptedClientJson(request, 
                                                     ServerKeyManager.getInstance().getServerPrivateKey(), "authContents");
             
             byte[] password                     =   Base64.getDecoder().decode(passSaltObj.get("password").getAsString().getBytes("UTF-8"));
             byte[] salt                         =   Base64.getDecoder().decode(passSaltObj.get("salt").getAsString().getBytes("UTF-8"));
             byte[] data                         =   Base64.getDecoder().decode(request.getParameter("clientData").getBytes("UTF-8"));
-            String decData                      =   cryptoController.pbeDecrypt(password, salt, data);
+            String decData                      =   CryptoCommons.pbeDecrypt(password, salt, data);
             JsonObject requestObj               =   ServletUtils.parseJsonInput(decData);
             JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(requestObj);
             
