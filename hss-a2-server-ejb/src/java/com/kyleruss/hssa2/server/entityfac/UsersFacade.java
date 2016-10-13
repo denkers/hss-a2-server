@@ -9,6 +9,7 @@ package com.kyleruss.hssa2.server.entityfac;
 import com.kyleruss.hssa2.server.entity.Users;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -41,31 +42,38 @@ public class UsersFacade extends AbstractFacade<Users>
         return em;
     }
     
+    public Entry<Boolean, String> updateUserAccount(Users user, String name, String email, String profileImage)
+    {
+        if(user == null)
+            return new SimpleEntry<>(false, "User not found");
+        
+        else
+        {
+            user.setName(name);
+            user.setEmail(email);
+            
+            if(profileImage != null) user.setProfileImage(Base64.getDecoder().decode(profileImage));
+            
+            edit(user);
+            return new SimpleEntry<>(true, "Successfully updated account");
+        }
+    }
+    
     public Entry<Boolean, String> createUserAccount(String phoneID, String name, String email)
     {
-        boolean result;
-        String response;
-        
         Users user  =  find(phoneID);
         
         if(user == null)
         {
-            user        =   new Users(phoneID, name, email);
+            user                =   new Users(phoneID, name, email);
             create(user);
-            result      =   em.contains(user);
-            response    =   result? "Successfully created account" : "Failed to create account";
+            boolean result      =   em.contains(user);
+            String response     =   result? "Successfully created account" : "Failed to create account";
+            
+            return new SimpleEntry<>(result, response);
         }
         
-        else
-        {
-            user.setEmail(email);
-            user.setName(name);
-            edit(user);
-            result      =   true;
-            response    =   "Successfully updated account";   
-        }
-        
-        return new SimpleEntry<>(result, response);
+        else return updateUserAccount(user, name, email, null);
     }
     
     public List<Users> getUserList()

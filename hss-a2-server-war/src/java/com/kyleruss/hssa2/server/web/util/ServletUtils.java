@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kyleruss.hssa2.commons.CryptoCommons;
 import com.kyleruss.hssa2.commons.EncryptedSession;
+import com.kyleruss.hssa2.server.web.app.ServerKeyManager;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -46,6 +47,23 @@ public class ServletUtils
         response.setContentType("application/json");        
         response.getWriter().write(jsonResponse);
     }
+    
+    public static EncryptedSession decryptSessionRequest(HttpServletRequest request) 
+    throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException
+    {
+        return decryptSessionRequest(request.getParameter("key"), request.getParameter("data"));
+    }
+    
+     public static EncryptedSession decryptSessionRequest(String key, String data) 
+     throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException
+     {
+        byte[] keyBytes                     =   Base64.getDecoder().decode(key);
+        byte[] dataBytes                    =   Base64.getDecoder().decode(data);
+        EncryptedSession encSession         =   new EncryptedSession(keyBytes, dataBytes, ServerKeyManager.getInstance().getServerPrivateKey());
+        encSession.unlock();
+        
+        return encSession;
+     }
     
     public static JsonObject prepareKeySessionResponse(EncryptedSession enc) 
     throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException
