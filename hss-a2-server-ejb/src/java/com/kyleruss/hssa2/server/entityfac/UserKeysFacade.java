@@ -10,6 +10,7 @@ import com.kyleruss.hssa2.server.entity.UserKeys;
 import com.kyleruss.hssa2.server.entity.Users;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -19,20 +20,21 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 @Stateless
+@LocalBean
 public class UserKeysFacade extends AbstractFacade<UserKeys> 
 {
     @PersistenceContext(unitName = "hss-a2-server-ejbPU")
     private EntityManager em;
 
-    @Override
-    protected EntityManager getEntityManager() {
-        
-        return em;
-    }
-
     public UserKeysFacade() 
     {
         super(UserKeys.class);
+    }
+    
+    @Override
+    protected EntityManager getEntityManager() 
+    {
+        return em;
     }
     
     public Entry<Boolean, String> createUserKey(Users user, String publicKey)
@@ -64,7 +66,7 @@ public class UserKeysFacade extends AbstractFacade<UserKeys>
                 edit(keyRecord);
                 result      =   true;
                 response    =   "Successfully updated public key record";   
-            }
+            } 
         }
         
         return new SimpleEntry<>(result, response);

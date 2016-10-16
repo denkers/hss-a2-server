@@ -49,7 +49,7 @@ public class MailController
     
     public void sendPasswordMail(String recvMail, String password) throws MessagingException
     {
-        String subject      =   "SecureChat Password Verification";
+        String subject      =   "SafeSMS Password Verification";
         String contentType  =   "text/html; charset=utf-8";   
         String content      =   PasswordMailTemplate.getTemplate(password);
         sendMail(recvMail, content, subject, contentType);

@@ -84,7 +84,8 @@ public class ServletUtils
     throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, 
     IllegalBlockSizeException, InvalidKeyException, BadPaddingException
     {
-        String data         =   new String(Base64.getDecoder().decode(request.getParameter(paramName)));
+        byte[] data         =   Base64.getDecoder().decode(request.getParameter(paramName));
+        System.out.println("data len: " + data.length);
         String decData      =   CryptoCommons.publicDecrypt(data, key);
         JsonObject dataObj  =   ServletUtils.parseJsonInput(decData);
         

@@ -9,7 +9,7 @@ package com.kyleruss.hssa2.server.web.app;
 public class PasswordMailTemplate 
 {
     private static final String paramName   =   "{PASSWORD_PLACEHOLDER}";
-    private static String template = 
+    private static String template          = 
     "<html>"
     + "<body>"
         + "<h1>Hello,</h1>"

@@ -14,6 +14,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -50,11 +51,11 @@ public class Users implements Serializable
     @Column(name = "email")
     private String email;
     
-    @Basic(optional = true)
+    @Lob
+    @Basic(optional = false)
     @Null
-    @Size(min = 1, max = 100)
     @Column(name = "profile_image")
-    private String profileImage;
+    private byte[] profileImage;
     
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -114,12 +115,12 @@ public class Users implements Serializable
         this.createdDate = createdDate;
     }
 
-    public String getProfileImage()
+    public byte[] getProfileImage()
     {
         return profileImage;
     }
 
-    public void setProfileImage(String profileImage) 
+    public void setProfileImage(byte[] profileImage) 
     {
         this.profileImage = profileImage;
     }
@@ -137,11 +138,11 @@ public class Users implements Serializable
     @Override
     public boolean equals(Object object)
     {
-        if (!(object instanceof Users)) 
+        if (object == null || !(object instanceof Users)) 
             return false;
         
         Users other = (Users) object;
-        return this.id.equals(other.id);
+        return this.id.equals(other.getId());
     }
 
     @Override

@@ -112,11 +112,11 @@ public class UserKeys implements Serializable
     @Override
     public boolean equals(Object object) 
     {
-        if (!(object instanceof UserKeys)) 
+        if (id == null || object == null || !(object instanceof UserKeys)) 
             return false;
         
         UserKeys other = (UserKeys) object;
-        return this.id.equals(other.id);
+        return this.id.equals(other.getId());
     }
 
     @Override

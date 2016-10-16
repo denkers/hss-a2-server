@@ -7,6 +7,7 @@
 package com.kyleruss.hssa2.server.web.servlet;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.kyleruss.hssa2.commons.CryptoCommons;
 import com.kyleruss.hssa2.commons.CryptoUtils;
@@ -25,11 +26,13 @@ import com.kyleruss.hssa2.server.web.util.ServletUtils;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.security.Key;
 import java.security.PublicKey;
 import java.util.Base64;
 import java.util.List;
 import javax.ejb.EJB;
+import javax.persistence.Tuple;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -93,19 +96,20 @@ public class UserServlet extends HttpServlet
     {
         try
         {
-            String keyParam                     =   request.getParameter("authKey");
-            String dataParam                    =   request.getParameter("clientData");
-            EncryptedSession encSession         =   new EncryptedSession(keyParam, dataParam, 
-                                                    ServerKeyManager.getInstance().getServerPrivateKey(), true);
+            String keyParam                     =   request.getParameter("key");
+            String dataParam                    =   request.getParameter("data");
+            EncryptedSession encSession         =   new EncryptedSession(Base64.getDecoder().decode(keyParam.getBytes("UTF-8")), 
+                                                    Base64.getDecoder().decode(dataParam.getBytes("UTF-8")), 
+                                                    ServerKeyManager.getInstance().getServerPrivateKey());
             encSession.unlock();
             String decData                      =   new String(encSession.getData());
             JsonObject requestObj               =   ServletUtils.parseJsonInput(decData);
             JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(requestObj);
             byte[] imageData                    =   Base64.getDecoder().decode(requestObj.get("imageData").getAsString());
-            String imageName                    =   "";
+            /*String imageName                    =   "";
             
             do imageName                        =   CryptoUtils.generateRandomString(6, CryptoUtils.ALPHA_NUMERIC) + ".jpg";
-            while(usersFacade.imageExists(imageName));
+            while(usersFacade.imageExists(imageName)); 
             
             String imagePath                    =   getServletConfig().getServletContext().getRealPath("WEB-INF") + "/resources/" + imageName;
             try(BufferedOutputStream outputStream   =   new BufferedOutputStream(new FileOutputStream(imagePath)))
@@ -114,13 +118,21 @@ public class UserServlet extends HttpServlet
                 responseObj.addProperty("status", true);
                 responseObj.addProperty("statusMessage", "Profile image successfully uploaded");
                 responseObj.addProperty("imageName", imageName);
-            }
+            } */
             
             Users user                          =   usersFacade.find(requestObj.get("userID").getAsString());
+            user.setProfileImage(imageData);
+            usersFacade.edit(user);
             UserKeys usersKey                   =   userKeysFacade.getKeyForUser(user);
-            Key userPublicKey                   =   CryptoUtils.stringToAsymKey(usersKey.getPubKey(), false, true);
-            String encryptedResponse            =   CryptoCommons.publicEncrypt(responseObj.toString(), userPublicKey);
-            response.getWriter().write(encryptedResponse);
+            byte[] publicKeyBytes               =   Base64.getDecoder().decode(usersKey.getPubKey().getBytes("UTF-8"));
+            Key userPublicKey                   =   CryptoUtils.stringToAsymKey(publicKeyBytes, true);
+            responseObj.addProperty("status", true);
+            responseObj.addProperty("statusMessage", "Profile image successfully uploaded");
+            
+            
+            EncryptedSession respSession        =   new EncryptedSession(responseObj.toString().getBytes("UTF-8"), userPublicKey);
+            JsonObject encResponseObj           =   ServletUtils.prepareKeySessionResponse(respSession);
+            ServletUtils.jsonResponse(response, encResponseObj);    
         }
         
         catch(Exception e)
@@ -135,22 +147,45 @@ public class UserServlet extends HttpServlet
     {
         try
         {
-            JsonObject inputObj                 =   ServletUtils.getPublicEncryptedClientJson(request, 
-                                                    ServerKeyManager.getInstance().getServerPrivateKey());
-            JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(inputObj);
-            List<Users> users                   =   usersFacade.getUsersInList(UserManager.getInstance().getUsers());
-            String userListJson                 =   new Gson().toJson(users);
-            responseObj.addProperty("userList", userListJson);
-            Users user                          =   usersFacade.find(inputObj.get("userID").getAsString());
+            byte[] keyBytes                     =   Base64.getDecoder().decode(request.getParameter("key"));
+            byte[] dataBytes                    =   Base64.getDecoder().decode(request.getParameter("data"));
+            EncryptedSession encSession         =   new EncryptedSession(keyBytes, dataBytes, ServerKeyManager.getInstance().getServerPrivateKey());
+            encSession.unlock();
+            
+            JsonObject requestObj               =   ServletUtils.parseJsonInput(new String(encSession.getData()));
+            JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(requestObj);
+            List<Tuple> users                   =   usersFacade.getUsersInList(UserManager.getInstance().getUsers());
+            
+            JsonObject userListObj              =   new JsonObject();
+            JsonArray usersJArray               =   new JsonArray();
+            for(Tuple user : users)
+            {
+                byte[] profImgBytes =   (byte[]) user.get("profileImage");
+                String profileImg   =   profImgBytes != null? Base64.getEncoder().encodeToString(profImgBytes) : null;
+                JsonObject userRecordObj    =   new JsonObject();
+                userRecordObj.addProperty("name", (String) user.get("name"));
+                userRecordObj.addProperty("phoneID", (String) user.get("id"));
+                userRecordObj.addProperty("profileImage", profileImg);
+                userRecordObj.addProperty("email", (String) user.get("email"));
+                usersJArray.add(userRecordObj);
+            }
+            
+            userListObj.add("users", usersJArray);
+            userListObj.addProperty("userCount", usersJArray.size());
+            
+            responseObj.addProperty("userList", userListObj.toString());
+            Users user                          =   usersFacade.find(requestObj.get("userID").getAsString());
             UserKeys usersKey                   =   userKeysFacade.getKeyForUser(user);
-            Key userPublicKey                   =   CryptoUtils.stringToAsymKey(usersKey.getPubKey(), false, true);
-            EncryptedSession encSession         =   new EncryptedSession(responseObj.toString().getBytes("UTF-8"), userPublicKey);
-            JsonObject encResponseObj           =   ServletUtils.prepareKeySessionResponse(encSession);
+            byte[] publicKeyBytes               =   Base64.getDecoder().decode(usersKey.getPubKey().getBytes("UTF-8"));
+            Key userPublicKey                   =   CryptoUtils.stringToAsymKey(publicKeyBytes, true);
+            EncryptedSession encSessionResp     =   new EncryptedSession(responseObj.toString().getBytes("UTF-8"), userPublicKey);
+            JsonObject encResponseObj           =   ServletUtils.prepareKeySessionResponse(encSessionResp);
             ServletUtils.jsonResponse(response, encResponseObj);    
         }
         
         catch(Exception e)
         {
+            e.printStackTrace();
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
@@ -161,18 +196,22 @@ public class UserServlet extends HttpServlet
     {
         try
         {
-            JsonObject dataObj  =   ServletUtils.getPublicEncryptedClientJson(request, ServerKeyManager.getInstance().getServerPrivateKey());
+            byte[] keyBytes                 =   Base64.getDecoder().decode(request.getParameter("key"));
+            byte[] dataBytes                =   Base64.getDecoder().decode(request.getParameter("data"));
+            EncryptedSession encSession     =   new EncryptedSession(keyBytes, dataBytes, ServerKeyManager.getInstance().getServerPrivateKey());
+            encSession.unlock();
             
+            JsonObject dataObj  =   ServletUtils.parseJsonInput(new String(encSession.getData()));
             String userEmail    =   dataObj.getAsJsonPrimitive("email").getAsString();
             String password     =   CryptoUtils.generateRandomString(8, CryptoUtils.ALPHA_NUMERIC);
-            MailController.getInstance().sendPasswordMail(userEmail, password);
+            MailController.getInstance().sendPasswordMail(userEmail, password); 
             ActionResponse resp =   new ActionResponse("An authentication code has been sent to your email", true);
             ServletUtils.jsonResponse(response, resp);
         }
         
         catch(Exception e)
         {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             ActionResponse resp =   new ActionResponse("Failed to send authentication code ", false);
             ServletUtils.jsonResponse(response, resp);
         }
@@ -183,8 +222,15 @@ public class UserServlet extends HttpServlet
     {
         try
         {
-            JsonObject dataObj  =   ServletUtils.getPublicEncryptedClientJson(request, ServerKeyManager.getInstance().getServerPrivateKey());
-            String phoneID      =   dataObj.get("phoneID").getAsString();
+            byte[] keyBytes                     =   Base64.getDecoder().decode(request.getParameter("key"));
+            byte[] dataBytes                    =   Base64.getDecoder().decode(request.getParameter("data"));
+            EncryptedSession encSession         =   new EncryptedSession(keyBytes, dataBytes, ServerKeyManager.getInstance().getServerPrivateKey());
+            encSession.unlock();
+            
+            JsonObject requestObj               =   ServletUtils.parseJsonInput(new String(encSession.getData()));
+            JsonObject responseObj              =   ServletUtils.createAuthResponseObjFromInput(requestObj);
+            
+            String phoneID      =   requestObj.get("phoneID").getAsString();
             boolean connectStatus;
             
             if(usersFacade.find(phoneID) != null)
@@ -196,8 +242,37 @@ public class UserServlet extends HttpServlet
             else connectStatus = false;
             
             String connectMessage       =   connectStatus? "Successfully connected" : "Failed to connect: User ID not found";
-            ActionResponse actResponse  =   new ActionResponse(connectMessage, connectStatus);
-            ServletUtils.jsonResponse(response, actResponse);
+            responseObj.addProperty("status", connectStatus);
+            responseObj.addProperty("statusMessage", connectMessage);
+            
+            Users user = usersFacade.find(phoneID);
+            if(user != null)
+            {
+                responseObj.addProperty("name", user.getName());
+                responseObj.addProperty("email", user.getEmail());
+                responseObj.addProperty("phoneID", user.getId());
+                
+                byte[] imgBytes     =   user.getProfileImage();
+                if(imgBytes != null) 
+                {
+                    String profileImage =    Base64.getEncoder().encodeToString(imgBytes);
+                    responseObj.addProperty("profileImage", profileImage);
+                }
+                
+                UserKeys usersKey                   =   userKeysFacade.getKeyForUser(user);
+                byte[] publicKeyBytes               =   Base64.getDecoder().decode(usersKey.getPubKey().getBytes("UTF-8"));
+                Key userPublicKey                   =   CryptoUtils.stringToAsymKey(publicKeyBytes, true);
+                EncryptedSession encSessionResp     =   new EncryptedSession(responseObj.toString().getBytes("UTF-8"), userPublicKey);
+                JsonObject encResponseObj           =   ServletUtils.prepareKeySessionResponse(encSessionResp);
+                ServletUtils.jsonResponse(response, encResponseObj);
+            }
+            
+            else
+            {
+                ActionResponse actionResponse   =   new ActionResponse("Failed to connect to server", false);
+                ServletUtils.jsonResponse(response, actionResponse);
+            }
+            
         }
         
         catch(Exception e)
