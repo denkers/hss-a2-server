@@ -122,6 +122,6 @@ public class UserKeys implements Serializable
     @Override
     public String toString()
     {
-        return "com.kyleruss.hssa2.server.entity.UserKeys[ id=" + id + " ]";
+        return "UserKeys[ id=" + id + " ]";
     }
 }

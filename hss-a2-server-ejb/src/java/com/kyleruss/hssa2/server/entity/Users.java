@@ -20,7 +20,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 
 
@@ -52,8 +51,6 @@ public class Users implements Serializable
     private String email;
     
     @Lob
-    @Basic(optional = false)
-    @Null
     @Column(name = "profile_image")
     private byte[] profileImage;
     
@@ -148,7 +145,7 @@ public class Users implements Serializable
     @Override
     public String toString() 
     {
-        return "com.kyleruss.hssa2.server.entity.Users[ id=" + id + " ]";
+        return "Users[ id=" + id + " ]";
     }
 
     public List<UserKeys> getUserKeysList()
@@ -160,5 +157,4 @@ public class Users implements Serializable
     {
         this.userKeysList = userKeysList;
     }
-    
 }

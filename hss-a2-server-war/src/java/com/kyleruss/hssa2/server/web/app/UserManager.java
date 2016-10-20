@@ -13,6 +13,10 @@ import java.util.Set;
 public class UserManager
 {
     private static UserManager instance;
+    
+    //A set of online users using the application
+    //Users are added to the set when they connect to the server
+    //Users are removed from the set when they disconnect from the server
     private Set<String> users;
     
     private UserManager() {}

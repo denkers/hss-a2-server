@@ -19,6 +19,8 @@ public class PasswordMailTemplate
     + "</body>"
     + "</html>";
     
+    //Generates the password email template 
+    //injects the password into it
     public static String getTemplate(String password)
     {
         String injectedTemplate =   template.replace(paramName, password);

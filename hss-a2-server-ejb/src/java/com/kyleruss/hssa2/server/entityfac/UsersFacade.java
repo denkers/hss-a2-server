@@ -11,7 +11,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import javax.ejb.LocalBean;
@@ -42,6 +41,8 @@ public class UsersFacade extends AbstractFacade<Users>
         return em;
     }
     
+    //Edits the passed user record with the changed name, email or profile image
+    //Profile image is expected to be Base 64 encoded and will be decoded
     public Entry<Boolean, String> updateUserAccount(Users user, String name, String email, String profileImage)
     {
         if(user == null)
@@ -52,13 +53,16 @@ public class UsersFacade extends AbstractFacade<Users>
             user.setName(name);
             user.setEmail(email);
             
-            if(profileImage != null) user.setProfileImage(Base64.getDecoder().decode(profileImage));
+            if(profileImage != null) 
+                user.setProfileImage(Base64.getDecoder().decode(profileImage));
             
             edit(user);
             return new SimpleEntry<>(true, "Successfully updated account");
         }
     }
     
+    //Creates a new User record from the passed phone, name and email details
+    //Users cannot have the same phone id 
     public Entry<Boolean, String> createUserAccount(String phoneID, String name, String email)
     {
         Users user  =  find(phoneID);
@@ -81,26 +85,22 @@ public class UsersFacade extends AbstractFacade<Users>
         return findAll();
     }
     
-    /*public boolean imageExists(String imageName)
-    {
-        CriteriaBuilder builder          =   em.getCriteriaBuilder();
-        CriteriaQuery<Users> query       =   builder.createQuery(entityClass);
-        Root<Users> from                 =   query.from(entityClass);
-        query.select(from);
-        query.where(builder.equal(from.get("profileImage"), imageName));
-        
-        return !em.createQuery(query).getResultList().isEmpty();
-    } */
-    
+    //Returns the User records whose 
+    //phone ids are contained in the passed id list
     public List<Tuple> getUsersInList(Collection<String> userIDList)
     {
         CriteriaBuilder builder          =   em.getCriteriaBuilder();
-        //CriteriaQuery<Users> query       =   builder.createQuery(entityClass);
         CriteriaQuery<Tuple> query       =  builder.createTupleQuery();
         Root<Users> from                 =   query.from(entityClass);
-        query.multiselect(from.get("id").alias("id"), from.get("name").alias("name"), 
-            from.get("profileImage").alias("profileImage"), from.get("email").alias("email"));
-     //   query.where(from.get("id").in(userIDList));
+        query.multiselect
+        (
+                from.get("id").alias("id"), 
+                from.get("name").alias("name"), 
+                from.get("profileImage").alias("profileImage"), 
+                from.get("email").alias("email")
+        );
+        
+        query.where(from.get("id").in(userIDList));
         
         try { return em.createQuery(query).getResultList(); }
         catch(NoResultException e) { return new ArrayList<>(); }

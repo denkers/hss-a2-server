@@ -10,8 +10,14 @@ import java.io.Serializable;
 
 public class ActionResponse implements Serializable
 {
+    //The response message i.e error/success message
     private String message;
+    
+    //The status of the action/service request
+    //True indicates some action was successful
     private boolean actionStatus;
+    
+    //Extra data to pass back to the user
     private Object data;
     
     public ActionResponse()

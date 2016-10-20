@@ -37,6 +37,9 @@ public class UserKeysFacade extends AbstractFacade<UserKeys>
         return em;
     }
     
+    //Creates a new public key user_keys record for the passed user with public key
+    //User record should already exist and the public key must be valid
+    //Updates the public key if the user already has a public key record
     public Entry<Boolean, String> createUserKey(Users user, String publicKey)
     {
         boolean result  =   false;
@@ -50,6 +53,7 @@ public class UserKeysFacade extends AbstractFacade<UserKeys>
         {
             UserKeys keyRecord  =   getKeyForUser(user);
             
+            //No public key record, create a new one
             if(keyRecord == null)
             {
                 keyRecord   =   new UserKeys();
@@ -60,6 +64,7 @@ public class UserKeysFacade extends AbstractFacade<UserKeys>
                 response    =   result? "Successfully created users public key" : "Failed to create user public key";   
             }
             
+            //Public key record already exists, update it
             else
             {
                 keyRecord.setPubKey(publicKey);
@@ -72,6 +77,8 @@ public class UserKeysFacade extends AbstractFacade<UserKeys>
         return new SimpleEntry<>(result, response);
     }
     
+    //Returns the public key record for the passed user
+    //If exception occurs or user is not found, returns null
     public UserKeys getKeyForUser(Users user)
     {
         if(user == null) return null;

@@ -15,10 +15,16 @@ import java.security.PublicKey;
 public class ServerKeyManager 
 {
     private static ServerKeyManager instance;
+    
+    //The servers public-private key pair
+    //Keys are generated in ServerKeyManager@init
+    //Uses 1024bit RSA keys
     private KeyPair serverKeyPair;
     
     private ServerKeyManager() {}
     
+    //Initilizes the server public-private key pair
+    //Generates 1024bit RSA public & private keys
     protected void init()
     {
         if(serverKeyPair != null) return;

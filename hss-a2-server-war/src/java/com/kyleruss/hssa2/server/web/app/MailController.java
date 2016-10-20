@@ -8,7 +8,6 @@ package com.kyleruss.hssa2.server.web.app;
 
 import java.util.Properties;
 import javax.mail.Authenticator;
-import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -27,6 +26,8 @@ public class MailController
         initProperties();
     }
     
+    //Initializes the SMTP properties
+    //See Config for SMTP configs
     private void initProperties()
     {
         smtpProperties   =   new Properties();
@@ -36,6 +37,11 @@ public class MailController
         smtpProperties.put("mail.smtp.port", Config.SMTP_PORT);
     }
     
+    //Sends a email message to a recipient
+    //recvEmail: the recipients email
+    //content: the email/message body
+    //subject: email subject
+    //contentType: the message body/content type including charsset
     public void sendMail(String recvEmail, String content, String subject, String contentType) throws MessagingException
     {
         Session session     =   Session.getInstance(smtpProperties, new PassAuthenticator());
@@ -47,6 +53,8 @@ public class MailController
         Transport.send(msg);
     }
     
+    //Sends an email to the passed email address (@recvMail) with the generated code
+    //Content is generated from the template in app.PasswordMailTemplate
     public void sendPasswordMail(String recvMail, String password) throws MessagingException
     {
         String subject      =   "SafeSMS Password Verification";
