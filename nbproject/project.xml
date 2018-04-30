@@ -3,16 +3,16 @@
     <type>org.netbeans.modules.j2ee.earproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/j2ee-earproject/2">
-            <name>hss-a2-server</name>
+            <name>safesms-server</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <web-module-libraries/>
             <web-module-additional-libraries>
                 <library>
-                    <file>${reference.hss-a2-server-war.dist-ear}</file>
+                    <file>${reference.safesms-server-ejb.dist-ear}</file>
                     <path-in-war>/</path-in-war>
                 </library>
                 <library>
-                    <file>${reference.hss-a2-server-ejb.dist-ear}</file>
+                    <file>${reference.safesms-server-war.dist-ear}</file>
                     <path-in-war>/</path-in-war>
                 </library>
             </web-module-additional-libraries>
@@ -22,7 +22,7 @@
         </libraries>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
             <reference>
-                <foreign-project>hss-a2-server-ejb</foreign-project>
+                <foreign-project>safesms-server-ejb</foreign-project>
                 <artifact-type>j2ee_ear_archive</artifact-type>
                 <script>build.xml</script>
                 <target>dist-ear</target>
@@ -30,7 +30,7 @@
                 <id>dist-ear</id>
             </reference>
             <reference>
-                <foreign-project>hss-a2-server-war</foreign-project>
+                <foreign-project>safesms-server-war</foreign-project>
                 <artifact-type>j2ee_ear_archive</artifact-type>
                 <script>build.xml</script>
                 <target>dist-ear</target>

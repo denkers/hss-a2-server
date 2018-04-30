@@ -5,3 +5,7 @@
 /hss-a2-server-war/dist/
 /hss-a2-server-ejb/build/
 /hss-a2-server-ejb/dist/
+/safesms-server-ejb/build/
+/safesms-server-ejb/dist/
+/safesms-server-war/build/
+/safesms-server-war/dist/
