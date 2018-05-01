@@ -4,6 +4,25 @@
 
 [![forthebadge](https://forthebadge.com/images/badges/made-with-java.svg)](https://forthebadge.com)
 
+SafeSMS Server is the back-end component of the [SafeSMS Client](https://github.com/kyleruss/safesms-client)  
+The server acts as a public-key authority, storing public keys for each client in the system  
+The server manages a mobile client user base and allows users to register, connect, change settings, view other online users, send and receive encrypted SMS messages to each other
+
+
+### How it works
+- When a new client wishes to join SafeSMS, they first register an account  
+- All requests to the server are encrypted with AES 128bit using the servers public RSA key  
+- If the client successfully registers, the server generates a random one-time limited 
+password (for PBE) and emails it to the client for verification  
+- This password is used by the client to generate a an ephemeral key for the request where the client  
+generates a public RSA key and encrypts it along with a nonce value (to ensure it was not altered in transaction)  
+with AES using the ephemeral key 
+- The encrypted public key & nonce are sent to the server where the sever then stores the clients public key  
+and responds to the client with the status of the request and the same nonce value (so the that client can verify)  
+all encrypted using with AES using the clients public key
+- Thereafter, a client can view a list of online users and their phone numbers then request from the server the public  
+key of another user then encrypt their SMS messages with AES + the public key of the recipient to securely message
+
 ## Getting started
 
 ### Prerequisites
